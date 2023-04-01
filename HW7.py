@@ -1,7 +1,7 @@
 
-# Your name:
-# Your student id:
-# Your email:
+# Your name: Allison Lee
+# Your student id: 68193810
+# Your email: allislee@umich.edu
 # List who you have worked with on this project:
 
 import unittest
@@ -53,7 +53,13 @@ def make_positions_table(data, cur, conn):
 #     created for you -- see make_positions_table above for details.
 
 def make_players_table(data, cur, conn):
-    pass
+    cur.execute('DROP TABLE IF EXISTS Players')
+    cur.execute('CREATE TABLE Players (id INTEGER, name TEXT, position_id INTEGER, birthyear INTEGER, nationality TEXT)')
+
+cr = open_database('testing')[0]
+cn = open_database('testing')[1]
+
+make_players_table('football.json', cr, cn)
 
 ## [TASK 2]: 10 points
 # Finish the function nationality_search
