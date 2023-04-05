@@ -34,6 +34,8 @@ def make_positions_table(data, cur, conn):
         cur.execute("INSERT OR IGNORE INTO Positions (id, position) VALUES (?,?)",(i, positions[i]))
     conn.commit()
 
+# print(make_positions_table(dta, cur, conn))
+
 ## [TASK 1]: 25 points
 # Finish the function make_players_table
 
@@ -56,10 +58,28 @@ def make_players_table(data, cur, conn):
     cur.execute('DROP TABLE IF EXISTS Players')
     cur.execute('CREATE TABLE Players (id INTEGER, name TEXT, position_id INTEGER, birthyear INTEGER, nationality TEXT)')
 
-cr = open_database('testing')[0]
-cn = open_database('testing')[1]
+    position_d = {}
+    cur.execute('SELECT id, position FROM Positions')
+    conn.commit()
+    for row in cur:
+        id_num = row[0]
+        position_name = row[1]
+        position_d[position_name] = id_num
 
-make_players_table('football.json', cr, cn)
+    for d in  data.get('squad', None):
+        id_name = int(d['id'])
+        name = d['name']
+        position = d['position']
+        p_id = position_d.get(position, None)
+        birthday = d['dateOfBirth']
+        birthyear = birthday[:4]
+        nat = d['nationality']
+        cur.execute('INSERT INTO Players (id, name, position_id, birthyear, nationality) VALUES (?, ?, ?, ?, ?)', (id_name, name, p_id, birthyear, nat))
+    conn.commit()
+
+# dta = read_data('football.json')
+# cur, conn = open_database('Football.db')
+# print(make_players_table(dta, cur, conn))
 
 ## [TASK 2]: 10 points
 # Finish the function nationality_search
@@ -72,7 +92,21 @@ make_players_table('football.json', cr, cn)
         # the player's name, their position_id, and their nationality.
 
 def nationality_search(countries, cur, conn):
-    pass
+    l = []
+    t = tuple(countries)
+    placeholder= '?' # For SQLite. See DBAPI paramstyle.
+    placeholders= ', '.join(placeholder for unused in countries)
+    query= 'SELECT name, position_id, nationality FROM Players WHERE nationality IN (%s)' % placeholders
+    #query = 'SELECT name, position_id, nationality FROM Players WHERE nationality IN (?, ?)', ('hi', 'pls')
+
+    cur.execute(query, countries)
+    for tup in cur:
+        l.append(tup)
+    return l
+
+# c_list = ['England']
+# cur, conn = open_database('Football.db')  
+# print(nationality_search(c_list, cur, conn))
 
 ## [TASK 3]: 10 points
 # finish the function birthyear_nationality_search
@@ -245,6 +279,7 @@ def main():
     make_seasons_table(seasons_json_data, cur2, conn2)
     conn2.close()
 
+main()
 
 if __name__ == "__main__":
     main()
