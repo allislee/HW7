@@ -134,7 +134,7 @@ def birthyear_nationality_search(age, country, cur, conn):
         l.append(row)
     return l
 
-cur, conn = open_database('Football.db')  
+# cur, conn = open_database('Football.db')  
 # print(birthyear_nationality_search(24, 'England', cur, conn))
 
 ## [TASK 4]: 15 points
@@ -155,7 +155,18 @@ cur, conn = open_database('Football.db')
     # HINT: You'll have to use JOIN for this task.
 
 def position_birth_search(position, age, cur, conn):
-       pass
+    year = 2023 - age
+    y = (year,position)
+    l = []
+    q = 'SELECT Players.name, Positions.position, Players.birthyear FROM Players JOIN Positions ON Players.position_id = Positions.id WHERE Players.birthyear > ? AND Positions.position = ?'
+    cur.execute(q, y)
+    for tup in cur:
+        l.append(tup)
+
+    return l
+    
+cur, conn = open_database('Football.db') 
+print(position_birth_search("Defence", 23, cur, conn))
 
 
 # [EXTRA CREDIT]
